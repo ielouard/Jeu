@@ -49,6 +49,12 @@ GLuint vboi_object_3=0;
 GLuint texture_id_object_3=0;
 int nbr_triangle_object_3;
 
+//identifiants pour object 4
+GLuint vbo_object_4=0;
+GLuint vboi_object_4=0;
+GLuint texture_id_object_4=0;
+int nbr_triangle_object_4;
+
 
 
 //Matrice de transformation
@@ -65,6 +71,7 @@ struct transformation
 transformation transformation_sonic;
 transformation transformation_sol;
 transformation transformation_rock;
+transformation transformation_boule;
 
 //Transformation de la vue (camera)
 transformation transformation_view;
@@ -73,9 +80,12 @@ transformation transformation_view;
 mat4 projection;
 
 //etat saut
-enum etat_saut { sol , saut , chute } ;
+enum etat_saut { sol , saut , chute, droite, gauche, on , off } ;
+
 etat_saut etat;
+
 float dL=0.1f;
+float limit = 1.5f;
 int tempo;
 
 //angle de deplacement
@@ -89,10 +99,12 @@ void load_texture(const char* filename,GLuint *texture_id);
 void init_sonic();
 void init_sol();
 void init_rock();
+void init_boule();
 
 void draw_sonic();
 void draw_sol();
 void draw_rock();
+void draw_boule();
 
 void collision();
 
@@ -118,6 +130,11 @@ static void init()
     init_sol();
     // Charge modele 3 sur la carte graphique
     init_rock();
+    // Charge ma boule
+    init_boule();
+    
+    //Rotation de la camera vers "le bas"
+    transformation_view.rotation = matrice_rotation(M_PI/6 , 1.0f,0.0f,0.0f);
 
 }
 
@@ -126,7 +143,7 @@ static void init()
 static void display_callback()
 {
     //effacement des couleurs du fond d'ecran
-    glClearColor(0.5f, 0.6f, 0.9f, 1.0f);                 PRINT_OPENGL_ERROR();
+    glClearColor(1.0f, 0.2f, 0.2f, 1.0f);                 PRINT_OPENGL_ERROR();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);   PRINT_OPENGL_ERROR();
 
     // Affecte les parametres uniformes de la vue (identique pour tous les modeles de la scene)
@@ -140,6 +157,7 @@ static void display_callback()
 
         //envoie de la translation
         vec3 tv = transformation_view.translation;
+	tv.z--; tv.y--;
         glUniform4f(get_uni_loc(shader_program_id,"translation_view") , tv.x,tv.y,tv.z , 0.0f); PRINT_OPENGL_ERROR();
     }
 
@@ -150,6 +168,8 @@ static void display_callback()
     draw_sol();
     // Affiche le modele numero 2 (monstre)
     draw_rock();
+    //Affiche ma boule
+    draw_boule();
 
 
     //Changement de buffer d'affichage pour eviter un effet de scintillement
@@ -163,11 +183,12 @@ static void display_callback()
 \*****************************************************************************/
 static void keyboard_callback(unsigned char key, int, int)
 {
-
-
     //quitte le programme si on appuie sur les touches 'q', 'Q', ou 'echap'
     switch (key)
     {
+      case 's': 
+	etat=on;
+	break;
     case 'q':
     case 'Q':
     case 27:
@@ -175,8 +196,6 @@ static void keyboard_callback(unsigned char key, int, int)
         break;
     }
 
-    transformation_sonic.rotation = matrice_rotation(angle_y_sonic , 0.0f,1.0f,0.0f) * matrice_rotation(angle_x_sonic , 1.0f,0.0f,0.0f);
-    transformation_view.rotation = matrice_rotation(angle_view , 0.0f,1.0f,0.0f);
 }
 
 /*****************************************************************************\
@@ -184,20 +203,22 @@ static void keyboard_callback(unsigned char key, int, int)
 \*****************************************************************************/
 static void special_callback(int key, int,int)
 {
-
+    
     switch (key)
     {
     case GLUT_KEY_UP:
         if(etat == sol)
             etat=saut;
         break;
+    case GLUT_KEY_DOWN:
+	transformation_boule.translation=transformation_sonic.translation;
+        etat=on;
+        break;
     case GLUT_KEY_LEFT:
-        if(transformation_sonic.translation.x>-1)transformation_sonic.translation.x -= dL; //rotation avec la touche de gauche
-        else transformation_sonic.translation.x=1.0;
+	  etat=gauche;
         break;
     case GLUT_KEY_RIGHT:
-        if(transformation_sonic.translation.x<1)transformation_sonic.translation.x += dL; //rotation avec la touche de droite
-        else transformation_sonic.translation.x=-1.0;
+        etat=droite;
         break;
     }
 
@@ -224,18 +245,39 @@ static void timer_callback(int)
     switch (etat)
     {
     case saut:
-        transformation_sonic.translation.y += 0.3f; //rotation avec la touche du haut
-        if(transformation_sonic.translation.y > 1.0) etat=chute;
+        transformation_sonic.translation.y += 0.1f; //Saut avec la touche du haut
+        if(transformation_sonic.translation.y > 1.3) etat=chute;
         break;
     case sol:
-        transformation_sonic.translation.y += 0.0; //rotation avec la touche du haut
+        transformation_sonic.translation.y += 0.0;
         break;
     case chute:
-        transformation_sonic.translation.y -= 0.3f; //rotation avec la touche du haut
+        transformation_sonic.translation.y -= 0.2f; 
         if(transformation_sonic.translation.y < 0.2) etat=sol;
         break;
-    }
-
+    case gauche: //Translation avec la touche de gauche
+      
+      if(transformation_sonic.translation.x<-limit){ etat= sol;}
+      //Blocage personnage à gauche
+      if(transformation_sonic.translation.x>-limit)transformation_sonic.translation.x -= dL/5; 
+        else transformation_sonic.translation.x=-limit;
+      break;
+    case droite: //Translation avec la touche de droite
+      
+      if(transformation_sonic.translation.x>limit) { etat= sol;}
+      //Blocage personnage à droite
+      if(transformation_sonic.translation.x<limit)transformation_sonic.translation.x += dL/5; 
+        else transformation_sonic.translation.x=limit;
+      break;
+      
+      case on:
+	transformation_boule.translation.z+=1.0f;
+	etat=off;
+	break;
+      case off:
+	transformation_boule.translation.z=-3.0;
+	break;
+ }
     //Translation sol + rocher à la meme vitesse
     transformation_sol.translation.z+=dL;
     transformation_rock.translation.z+=dL;
@@ -346,6 +388,48 @@ void draw_sonic()
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vboi_object_1);                           PRINT_OPENGL_ERROR();
         glBindTexture(GL_TEXTURE_2D, texture_id_object_1);                             PRINT_OPENGL_ERROR();
         glDrawElements(GL_TRIANGLES, 3*nbr_triangle_object_1, GL_UNSIGNED_INT, 0);     PRINT_OPENGL_ERROR();
+    }
+
+}
+
+void draw_boule()
+{
+    //envoie des parametres uniformes
+    {
+        glUniformMatrix4fv(get_uni_loc(shader_program_id,"rotation_model"),1,false,pointeur(transformation_boule.rotation));    PRINT_OPENGL_ERROR();
+
+        vec3 c = transformation_boule.rotation_center;
+        glUniform4f(get_uni_loc(shader_program_id,"rotation_center_model") , c.x,c.y,c.z , 0.0f);                                 PRINT_OPENGL_ERROR();
+
+        vec3 t = transformation_boule.translation;
+        glUniform4f(get_uni_loc(shader_program_id,"translation_model") , t.x,t.y,t.z , 0.0f);                                     PRINT_OPENGL_ERROR();
+    }
+
+    //placement des VBO
+    {
+        //selection du VBO courant
+        glBindBuffer(GL_ARRAY_BUFFER,vbo_object_4);                                                    PRINT_OPENGL_ERROR();
+
+        // mise en place des differents pointeurs
+        glEnableClientState(GL_VERTEX_ARRAY);                                                          PRINT_OPENGL_ERROR();
+        glVertexPointer(3, GL_FLOAT, sizeof(vertex_opengl), 0);                                        PRINT_OPENGL_ERROR();
+
+        glEnableClientState(GL_NORMAL_ARRAY); PRINT_OPENGL_ERROR();                                    PRINT_OPENGL_ERROR();
+        glNormalPointer(GL_FLOAT, sizeof(vertex_opengl), buffer_offset(sizeof(vec3)));                 PRINT_OPENGL_ERROR();
+
+        glEnableClientState(GL_COLOR_ARRAY); PRINT_OPENGL_ERROR();                                     PRINT_OPENGL_ERROR();
+        glColorPointer(3,GL_FLOAT, sizeof(vertex_opengl), buffer_offset(2*sizeof(vec3)));              PRINT_OPENGL_ERROR();
+
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY); PRINT_OPENGL_ERROR();                             PRINT_OPENGL_ERROR();
+        glTexCoordPointer(2,GL_FLOAT, sizeof(vertex_opengl), buffer_offset(3*sizeof(vec3)));           PRINT_OPENGL_ERROR();
+
+    }
+
+    //affichage
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vboi_object_4);                           PRINT_OPENGL_ERROR();
+        glBindTexture(GL_TEXTURE_2D, texture_id_object_4);                             PRINT_OPENGL_ERROR();
+        glDrawElements(GL_TRIANGLES, 3*nbr_triangle_object_4, GL_UNSIGNED_INT, 0);     PRINT_OPENGL_ERROR();
     }
 
 }
@@ -475,8 +559,49 @@ void init_sonic()
 
     // Chargement de la texture
     load_texture("../data/Shadow.tga",&texture_id_object_1);
+}
+
+void init_boule()
+{
+    // Chargement d'un maillage a partir d'un fichier
+    mesh m = load_obj_file("../data/Rock.obj");
+
+    // Affecte une transformation sur les sommets du maillage
+    float s = 0.1f;
+    mat4 transform = mat4(   s, 0.0f, 0.0f, 0.0f,
+                          0.0f,    s, 0.0f,-0.9f,
+                          0.0f, 0.0f,   s ,-3.0f,
+                          0.0f, 0.0f, 0.0f, 1.0f);
+    apply_deformation(&m,transform);
+    transformation_boule.rotation = matrice_rotation(M_PI,0.0f,1.0f,0.0f);
+    // Centre la rotation du modele 1 autour de son centre de gravite approximatif
+    transformation_boule.rotation_center = vec3(0.0f,-0.5f,-2.0f);
+
+    // Calcul automatique des normales du maillage
+    update_normals(&m);
+    // Les sommets sont affectes a une couleur blanche
+    fill_color(&m,vec3(1.0f,0.0f,0.0f));
+
+    //attribution d'un buffer de donnees (1 indique la création d'un buffer)
+    glGenBuffers(1,&vbo_object_4); PRINT_OPENGL_ERROR();
+    //affectation du buffer courant
+    glBindBuffer(GL_ARRAY_BUFFER,vbo_object_4); PRINT_OPENGL_ERROR();
+    //copie des donnees des sommets sur la carte graphique
+    glBufferData(GL_ARRAY_BUFFER,m.vertex.size()*sizeof(vertex_opengl),&m.vertex[0],GL_STATIC_DRAW); PRINT_OPENGL_ERROR();
 
 
+    //attribution d'un autre buffer de donnees
+    glGenBuffers(1,&vboi_object_4); PRINT_OPENGL_ERROR();
+    //affectation du buffer courant (buffer d'indice)
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,vboi_object_4); PRINT_OPENGL_ERROR();
+    //copie des indices sur la carte graphique
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,m.connectivity.size()*sizeof(triangle_index),&m.connectivity[0],GL_STATIC_DRAW); PRINT_OPENGL_ERROR();
+
+    // Nombre de triangles de l'objet 1
+    nbr_triangle_object_4 = m.connectivity.size();
+
+    // Chargement de la texture
+    load_texture("../data/ball.tga",&texture_id_object_4);
 }
 
 void init_sol()
@@ -496,7 +621,7 @@ void init_sol()
     vec3 n3=n0;
 
     //couleur pour chaque sommet
-    vec3 c0=vec3(1.0f,1.0f,1.0f);
+    vec3 c0=vec3(1.0f,1.0f,0.8f);
     vec3 c1=c0;
     vec3 c2=c0;
     vec3 c3=c0;
@@ -561,7 +686,7 @@ void init_rock()
     // Calcul automatique des normales du maillage
     update_normals(&m);
     // Les sommets sont affectes a une couleur blanche
-    fill_color(&m,vec3(1.0f,-0.20f,1.0f));
+    fill_color(&m,vec3(1.0f,1.0f,1.0f));
 
     //attribution d'un buffer de donnees (1 indique la création d'un buffer)
     glGenBuffers(1,&vbo_object_3);                                 PRINT_OPENGL_ERROR();
@@ -587,10 +712,10 @@ void init_rock()
 
 //Gestion des collisions
 void collision(){
-    float epsilon = 1.5f;
+    float epsilon = 0.8f;
     float Norme = sqrt(pow(transformation_sonic.translation.x-transformation_rock.translation.x, 2)+
                      pow(transformation_sonic.translation.y-transformation_rock.translation.y, 2)+
-                     pow(transformation_sonic.translation.z-transformation_rock.translation.z+10, 2));
+                     pow(transformation_sonic.translation.z-transformation_rock.translation.z+8, 2));
     printf("%f\n",Norme);
     if(Norme<epsilon) exit(0);
 }
