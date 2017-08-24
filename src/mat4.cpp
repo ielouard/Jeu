@@ -35,8 +35,9 @@ float mat4::operator()(int x,int y) const
 
     else
     {
+        // Error handling
         //gestion d'erreur
-        std::cout<<"Indices de matrices incorrects ("<<x<<","<<y<<")"<<std::endl;
+        std::cout<<"Incorrect matrices index ("<<x<<","<<y<<")"<<std::endl;
         abort();
     }
 }
@@ -49,8 +50,9 @@ float& mat4::operator()(int x,int y)
 
     else
     {
+        // Error handling
         //gestion d'erreur
-        std::cout<<"Indices de matrices incorrects ("<<x<<","<<y<<")"<<std::endl;
+        std::cout<<"Incorrect matrices index ("<<x<<","<<y<<")"<<std::endl;
         abort();
     }
 }
@@ -96,7 +98,7 @@ mat4 matrice_rotation(float angle,float axe_x,float axe_y,float axe_z)
     mat4 m;
     if(n<epsilon)
     {
-        std::cout<<"Attention, norme de vecteur vaut 0 pour matrice de rotation"<<std::endl;
+        std::cout<<"Warning, vector standard is equal to 0 for a rotation matrice"<<std::endl;
         return m;
     }
 
@@ -150,7 +152,7 @@ std::ostream& operator<<(std::ostream& sout,const mat4& m)
     return sout;
 }
 
-/** Applique mat4 sur un vec3 */
+/** Appli mat4 in a vec3 */
 vec3 operator*(const mat4& m,const vec3& p)
 {
     vec3 r(m(0,0)*p.x+m(0,1)*p.y+m(0,2)*p.z+m(0,3),
