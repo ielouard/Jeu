@@ -7,55 +7,55 @@
 #include <iostream>
 
 
-/** Une structure de vecteur 3D */
+/** A 3D vector structure*/
 
 struct vec3
 {
-    /** Coordonnee x */
+    /** coordinate x */
     float x;
-    /** Coordonnee y */
+    /** coordinate y */
     float y;
-    /** Coordonnee z */
+    /** coordinate z */
     float z;
 
-    /** Constructeur vecteur (0,0,0) */
+    /** Vector costructor (0,0,0) */
     vec3();
-    /** Constructeur vecteur (x,y,z) */
+    /** Vector constructor (x,y,z) */
     vec3(float x_param,float y_param,float z_param);
 
-    /** Somme vectorielle */
+    /** Vector sum */
     vec3& operator+=(const vec3& v);
-    /** Difference vectorielle */
+    /** Vector difference */
     vec3& operator-=(const vec3& v);
-    /** Multiplication par un scalaire */
+    /** Multiplication by a scalar */
     vec3& operator*=(float s);
-    /** Division par un scalaire */
+    /** Division by a scalar*/
     vec3& operator/=(float s);
 };
 
 
-/** Norme d'un vecteur */
+/** Norm of a vector */
 float norm(const vec3& v);
-/** Produit scalaire */
+/**Dot product */
 float dot(const vec3& v0,const vec3& v1);
-/** Produit vectoriel */
+/** Cross product */
 vec3 cross(const vec3& v0,const vec3& v1);
 
-/** Renvoie un vecteur de meme direction de norme 1 */
+/** Returns a vector of the same direction of norm 1 */
 vec3 normalize(const vec3& v);
 
-/** Affichage d'un vecteur sur la ligne de commande */
+/** Displaying a vector on the command line*/
 std::ostream& operator<<(std::ostream& sout,const vec3& m);
 
-/** Somme vectorielle */
+/** Vector sum*/
 vec3 operator+(const vec3& v0,const vec3& v1);
-/** Difference vectorielle */
+/** Vector Difference */
 vec3 operator-(const vec3& v0,const vec3& v1);
-/** Multiplication par un scalaire */
+/** Multiplication by a scalar */
 vec3 operator*(const vec3& v0,float s);
-/** Multiplication par un scalaire */
+/** Multiplication by a scalar */
 vec3 operator*(float s,const vec3& v0);
-/** Division par un scalaire */
+/** Division by a scalar */
 vec3 operator/(const vec3& v0,float s);
 
 
