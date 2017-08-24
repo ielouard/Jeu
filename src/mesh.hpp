@@ -15,7 +15,7 @@ struct mesh
     /**The information (coord, color, normal, texture) by vertices*/
     std::vector<vertex_opengl> vertex;
 
-    /** la connectivite des triangles */
+    /** Triangles connectivity*/
     std::vector<triangle_index> connectivity;
 };
 
