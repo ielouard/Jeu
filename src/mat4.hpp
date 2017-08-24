@@ -6,52 +6,52 @@
 
 struct vec3;
 
-/** Une structure de matrice de taille 4x4 */
+/** 4x4 matrix structure */
 
 struct mat4
 {
-    /** Initialise la matrice a l'identitee */
+    /** Initialize the matrix to identity */
     mat4();
-    /** Initialisation par valeur */
+    /** Initialize the matrix with values */
     mat4(float x00,float x01,float x02,float x03,
          float x10,float x11,float x12,float x13,
          float x20,float x21,float x22,float x23,
          float x30,float x31,float x32,float x33);
 
-    /** Obtention des valeurs de la matrice sous la forme m(x,y) */
+    /** Obtaining the values of the matrix in the form m (x, y)*/
     float operator()(int x,int y) const;
 
-    /** Modification des valeurs de la matrice sous la forme m(x,y)=... */
+    /** Modifying the values of the matrix in the form m (x, y) =... */
     float& operator()(int x,int y);
 
 
-    /** Donnees de la matrice sous forme d'un tableau */
+    /**Matrix data in the form of a table */
     float M[4*4];
 };
 
-/** Produit de matrice */
+/** Matrix product*/
 mat4 operator*(const mat4& m1,const mat4& m2);
 
-/** Applique mat4 sur un vec3 */
+/** Apply mat4 on a vec3*/
 vec3 operator*(const mat4& m1,const vec3& m2);
 
-/** Recupere un pointeur sur les donnees de la matrice */
+/**Retrieves a pointer to the data of the matrix */
 const float *pointeur(const mat4& m);
 
-/** Calcule la transposee d'une matrice */
+/** Calculates the transpose of a matrix */
 mat4 transpose(const mat4& m);
 
-/** Construit une matrice de rotation ayant pour axe: (axe_x,axe_y,axe_z) et l'angle donne */
+/** Constructs a rotation matrix whose axis is: (axis_x, axis_y, axis_z) and the given angle*/
 mat4 matrice_rotation(float angle,float axe_x,float axe_y,float axe_z);
 
-/** Construit une matrice de projection */
+/** Constructs a projection matrix */
 //mat4 matrice_projection(float L,float H,float d_min,float d_max);
 mat4 matrice_projection(float fov,float aspect,float d_min,float d_max);
 
-/** Construit une matrice n'ayant que des zeros */
+/** Constructs a matrix with only zeros */
 mat4 matrice_zeros();
 
-/** Affichage d'une matrice sur la ligne de commande */
+/** Displaying a matrix on the command line*/
 std::ostream& operator<<(std::ostream& sout,const mat4& m);
 
 #endif
