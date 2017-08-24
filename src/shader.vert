@@ -23,9 +23,9 @@ void main (void)
     //The 3D coordinates of the summit
     coordonnee_3d = gl_Vertex.xyz;
 
-    //Application of model deformation
+    // Model deformation application
     vec4 p_model = rotation_model*(gl_Vertex-rotation_center_model)+rotation_center_model+translation_model;
-    //Application of the deformation of the view
+    // View deformation application
     vec4 p_modelview = rotation_view*(p_model-rotation_center_view)+rotation_center_view+translation_view;
 
     coordonnee_3d_locale = p_modelview.xyz;
@@ -34,7 +34,7 @@ void main (void)
     //Summit projection
     vec4 p_proj = projection*p_modelview;
 
-    // Management of Normals
+    // Normals management
     vec4 n = rotation_view*rotation_model*vec4(gl_Normal,0.0);
     normale=n.xyz;
 
