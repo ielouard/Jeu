@@ -9,31 +9,31 @@
 struct mat4;
 struct vec3;
 
-/** une structure de maillage */
+/** A mesh structure*/
 struct mesh
 {
-    /** les informations (coord,couleur,normale,texture) par sommets */
+    /**The information (coord, color, normal, texture) by vertices*/
     std::vector<vertex_opengl> vertex;
 
     /** la connectivite des triangles */
     std::vector<triangle_index> connectivity;
 };
 
-/** chargement d'un fichier off */
+/** load off file*/
 mesh load_off_file(const std::string& filename);
-/** chargement d'un fichier obj (gere potentiellement la texture) */
+/** Loading an obj file (potentially handling the texture) */
 mesh load_obj_file(const std::string& filename);
 
-/** calcule les normales du maillage passe en parametre */
+/** Calculates the normals of the mesh passed in parameter */
 void update_normals(mesh* m);
-/** donne une couleur uniforme au maillage passe en parametre */
+/** Gives a uniform color to the mesh passed in parameter */
 void fill_color(mesh* m,const vec3& color);
-/** chaque sommet du maillage recoit une couleur correspondante a sa normale */
+/** Each vertex of the mesh receives a color corresponding to its normal*/
 void fill_color_normal(mesh* m);
 
-/** applique la matrice passee en parametre a l'ensemble des sommets du maillage */
+/** Applies the matrix passed in parameter to the set of vertices of the mesh*/
 void apply_deformation(mesh* m,const mat4 T);
-/** inverse le sens de toutes les normales du maillage */
+/**Inverses the sense of all normal meshes*/
 void invert_normals(mesh* m);
 
 #endif
