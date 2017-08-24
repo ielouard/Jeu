@@ -34,7 +34,7 @@ struct vec3
 };
 
 
-/** Norm of a vector */
+/** Vector norm */
 float norm(const vec3& v);
 /**Dot product */
 float dot(const vec3& v0,const vec3& v1);
