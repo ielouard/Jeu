@@ -51,6 +51,8 @@ GLuint read_shader(const std::string &vertex_filename,
 
 
 
+// Adapt the offset for the VBO buffers
+// Param : offset (bytes)
 //Decallage d'offset sur pour les buffers des VBO (un simple cast vers un pointeur)
 // Le parametre doit contenir l'offset en octets
 GLubyte* buffer_offset(int offset);
