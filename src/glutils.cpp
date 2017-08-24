@@ -1,9 +1,9 @@
 /*****************************************************************************\
- * TP CPE                                                                    *
+ * CPE Practical work                                                                    *
  * ------
  *
- * Fonctions d'aides pour OpenGL (affichage d'erreur, chargement de shaders, etc)
- * Code repris de David Odin
+ * Opengl help fonctions (Dislay errors, shaders loader etc)
+ * Code inspired by David Odin's code: Opengl professor at CPE Lyon
  *
  *
 \*****************************************************************************/
