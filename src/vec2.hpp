@@ -32,9 +32,9 @@ struct vec2
 };
 
 
-/** Standard of a vector */
+/** Vector norm */
 float norm(const vec2& v);
-/** Scalar product*/
+/** Dot product*/
 float dot(const vec2& v0,const vec2& v1);
 
 /** Returns a vector of the same direction of norm 1 */
