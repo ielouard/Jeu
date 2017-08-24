@@ -4,21 +4,21 @@
 #include "vec3.hpp"
 #include "vec2.hpp"
 
-/** Un vertex de triangle affichage par OpenGL */
+/** A triangle vertex displayed by OpenGL */
 struct vertex_opengl
 {
-    /** Coordonnees 3D du sommet */
+    /** Summit 3D coordinates */
     vec3 position;
-    /** Normale du sommet */
+    /** Summit normal */
     vec3 normal;
-    /** Couleur du sommet */
+    /** Summit color */
     vec3 color;
-    /** Coordonnees de texture du sommet */
+    /** Summit color coordinates */
     vec2 texture;
 
-    /** Constructeur avec vecteurs par defauts */
+    /** Default constructor */
     vertex_opengl();
-    /** Constructeur avec valeur specifiques */
+    /** Special constructor */
     vertex_opengl(const vec3& position,
                   const vec3& normal,
                   const vec3& color,
